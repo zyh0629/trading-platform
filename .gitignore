@@ -1,0 +1,32 @@
+# Maven
+target/
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEA
+.idea/
+*.iml
+
+# Vue
+node_modules/
+dist/
+.vite/
+
+# 日志
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 环境配置
+*.local
+
+# 临时文件夹
+test_unzip/
+202432110209赵禹涵作品/
+# 压缩包和测试文件
+*.zip
+test.http
+package.json
+package-lock.json
