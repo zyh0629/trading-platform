@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
+    // 实验三：测试功能分支合并
 
     @GetMapping("/hello")
     public String hello() {
