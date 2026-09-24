@@ -80,10 +80,9 @@ const form = ref({
 
 // 上传请求头（携带 Token）
 const uploadHeaders = computed(() => {
-  const userStr = localStorage.getItem('user')
-  if (userStr) {
-    const user = JSON.parse(userStr)
-    return { Authorization: `Bearer ${user.token}` }
+  const token = sessionStorage.getItem('access_token')
+  if (token) {
+    return { Authorization: `Bearer ${token}` }
   }
   return {}
 })

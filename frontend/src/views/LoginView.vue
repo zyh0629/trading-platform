@@ -240,8 +240,8 @@ const handleLogin = async () => {
     const res = await login(loginForm.value.username, loginForm.value.password)
     console.log('登录返回:', res)
     if (res && res.token) {
-      const userData = { ...res.user, token: res.token }
-      localStorage.setItem('user', JSON.stringify(userData))
+      sessionStorage.setItem('access_token', res.token)
+      localStorage.setItem('user', JSON.stringify(res.user))
       ElMessage.success('登录成功')
       if (res.user.role === 1) {
         router.push('/admin')

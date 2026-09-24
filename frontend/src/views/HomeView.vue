@@ -46,6 +46,10 @@
             <el-icon><House /></el-icon>
             <span>首页</span>
           </el-menu-item>
+          <el-menu-item index="assistant">
+            <el-icon><ChatDotRound /></el-icon>
+            <span>学习搭子</span>
+          </el-menu-item>
           <el-menu-item index="recommend">
             <el-icon><MagicStick /></el-icon>
             <span>智能推荐</span>
@@ -293,6 +297,7 @@ const handleMenuSelect = (index) => {
     products: '/profile?tab=products',
     favorites: '/profile?tab=favorites',
     orders: '/orders',
+    assistant: '/assistant',
     admin: '/admin',
     stats: '/statistics',
     profile: '/profile'
@@ -312,6 +317,7 @@ const handleMenu = (command) => {
   }
   if (command === 'logout') {
     localStorage.removeItem('user')
+    sessionStorage.removeItem('access_token')
     ElMessage.success('已退出')
     router.push('/login')
   } else {

@@ -11,6 +11,7 @@ import StatisticsView from '../views/StatisticsView.vue'
 import EditProductView from '../views/EditProductView.vue'
 import RecommendView from '../views/RecommendView.vue'
 import OrdersView from '../views/OrdersView.vue'
+import AiAssistantView from '../views/AiAssistantView.vue'
 
 // 路由守卫：检查登录状态
 const requireAuth = (to, from, next) => {
@@ -92,6 +93,12 @@ const routes = [
     path: '/orders',
     name: 'orders',
     component: OrdersView,
+    beforeEnter: requireAuth
+  },
+  {
+    path: '/assistant',
+    name: 'assistant',
+    component: AiAssistantView,
     beforeEnter: requireAuth
   }
 

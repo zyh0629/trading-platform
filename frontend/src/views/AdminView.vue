@@ -429,6 +429,7 @@ const initCharts = () => {
 
 const logout = () => {
   localStorage.removeItem('user')
+  sessionStorage.removeItem('access_token')
   router.push('/login')
 }
 

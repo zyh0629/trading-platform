@@ -11,16 +11,9 @@ const request = axios.create({
 // 请求拦截器：自动添加 Token
 request.interceptors.request.use(
   config => {
-    const userStr = localStorage.getItem('user')
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr)
-        if (user.token) {
-          config.headers.Authorization = `Bearer ${user.token}`
-        }
-      } catch (e) {
-        console.error('解析用户信息失败', e)
-      }
+    const token = sessionStorage.getItem('access_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
@@ -38,6 +31,7 @@ request.interceptors.response.use(
         return res.data
       } else if (res.code === 401) {
         localStorage.removeItem('user')
+        sessionStorage.removeItem('access_token')
         window.location.href = '/login'
         return Promise.reject(new Error(res.message))
       } else {
