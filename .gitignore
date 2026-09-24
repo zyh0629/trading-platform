@@ -28,6 +28,7 @@ test_unzip/
 # 压缩包和测试文件
 *.zip
 test.http
-package.json
-package-lock.json
 GenPwd.java
+
+/package.json
+/package-lock.json
