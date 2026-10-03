@@ -205,7 +205,7 @@ const ask = async () => {
   min-height: 100vh;
   padding: 32px 20px;
   box-sizing: border-box;
-  background: #f3f5fb;
+  background: var(--color-bg-page);
 }
 
 .assistant-card {
@@ -215,14 +215,15 @@ const ask = async () => {
   margin: 0 auto;
   overflow: hidden;
   border: 0;
-  border-radius: 20px;
-  background: #fff;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-card);
 }
 
 :deep(.el-card__header) {
   padding: 20px 24px;
-  border-bottom: 1px solid #edf0f7;
-  background: linear-gradient(135deg, #536dfe 0%, #7c4dff 100%);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-banner-gradient);
 }
 
 :deep(.el-card__body) {
@@ -244,7 +245,7 @@ const ask = async () => {
 
 .assistant-header {
   justify-content: space-between;
-  color: #fff;
+  color: var(--color-bg-card);
 }
 
 .title-wrap {
@@ -252,8 +253,8 @@ const ask = async () => {
 }
 
 .title-avatar {
-  color: #5b5ce2;
-  background: #fff;
+  color: var(--color-primary-dark);
+  background: var(--color-bg-card);
 }
 
 h1 {
@@ -269,7 +270,8 @@ h1 {
 
 .rag-tag {
   border: 0;
-  background: rgba(255, 255, 255, 0.22);
+  color: var(--color-bg-card);
+  background: var(--color-accent-gradient);
 }
 
 .security-tip {
@@ -319,27 +321,27 @@ h1 {
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-word;
-  border-radius: 16px;
-  box-shadow: 0 3px 12px rgba(45, 55, 90, 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .user-bubble {
-  color: #fff;
+  color: var(--color-bg-card);
   border-top-right-radius: 4px;
-  background: linear-gradient(135deg, #536dfe 0%, #7c4dff 100%);
+  background: var(--color-primary-gradient);
 }
 
 .ai-bubble {
-  color: #303133;
-  border: 1px solid #edf0f7;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
   border-top-left-radius: 4px;
-  background: #fff;
+  background: var(--color-primary-soft);
 }
 
 .error-bubble {
-  color: #b42318;
-  border-color: #fecdca;
-  background: #fff5f4;
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background: var(--color-bg-card);
 }
 
 .sources {
@@ -351,7 +353,7 @@ h1 {
 }
 
 .sources-label {
-  color: #909399;
+  color: var(--color-text-secondary);
   font-size: 12px;
 }
 
@@ -360,7 +362,7 @@ h1 {
 }
 
 .source-tag:hover {
-  color: #536dfe;
+  color: var(--color-primary-dark);
 }
 
 .welcome-message {
@@ -371,14 +373,14 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #909399;
+  color: var(--color-text-secondary);
 }
 
 .thinking i {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #7c4dff;
+  background: var(--color-primary);
   animation: blink 1.2s infinite ease-in-out;
 }
 
@@ -412,7 +414,7 @@ h1 {
   height: 40px;
   min-width: 76px;
   border: 0;
-  background: linear-gradient(135deg, #536dfe 0%, #7c4dff 100%);
+  background: var(--color-primary-gradient);
 }
 
 @media (max-width: 600px) {

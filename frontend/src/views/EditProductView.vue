@@ -73,7 +73,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="handleUpdate" :loading="submitting">保存修改</el-button>
+        <el-button class="submit-button" type="primary" @click="handleUpdate" :loading="submitting">保存修改</el-button>
         <el-button @click="$router.push('/')">取消</el-button>
       </el-form-item>
     </el-form>
@@ -291,9 +291,10 @@ onMounted(() => {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 .edit-container h2 {
   margin-bottom: 24px;
@@ -304,7 +305,7 @@ onMounted(() => {
 }
 .el-upload__tip {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-secondary);
   margin-top: 4px;
 }
 .image-preview {
@@ -313,8 +314,12 @@ onMounted(() => {
 .image-preview img {
   max-width: 200px;
   max-height: 200px;
-  border-radius: 8px;
-  border: 1px solid #eee;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+:deep(.submit-button) {
+  border: 0;
+  background: var(--color-primary-gradient);
 }
 .my-spot-list {
   display: flex;
@@ -323,7 +328,14 @@ onMounted(() => {
   margin-top: 6px;
 }
 .my-spot-item {
-  color: #606266;
+  color: var(--color-text-secondary);
   font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .edit-container {
+    margin: var(--space-sm);
+    padding: var(--space-md);
+  }
 }
 </style>

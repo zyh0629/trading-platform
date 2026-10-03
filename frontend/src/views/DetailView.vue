@@ -1,26 +1,34 @@
 <template>
   <div class="detail-container">
     <div v-if="product" class="product-detail">
-      <h1>{{ product.title }}</h1>
-      <div class="price">¥{{ product.price }}</div>
-      <div class="description">
-        <h3>商品描述</h3>
-        <p>{{ product.description }}</p>
+      <div class="product-image-card">
+        <img
+          :src="product.images || 'https://picsum.photos/800/600?random=' + product.id"
+          :alt="product.title"
+        />
       </div>
-      <div class="info">
-        <p>卖家ID：{{ product.userId }}</p>
-        <p>分类：{{ getCategoryName(product.categoryId) }}</p>
-        <p v-if="product.spotName">📍 交易点：{{ product.spotName }}</p>
-        <p v-if="product.spotDescription" class="spot-description">{{ product.spotDescription }}</p>
-        <p>状态：{{ product.status === 0 ? '在售' : '已售' }}</p>
-        <p>浏览量：{{ product.views }}</p>
-      </div>
-      <div class="actions">
-        <button @click="addFavorite" :disabled="favorited">❤️ 收藏</button>
-        <button v-if="user && user.id !== product.userId && product.status === 0" @click="buyProduct" class="buy-btn">🛒 立即购买</button>
-        <button v-if="user && user.id !== product.userId" @click="goToChat">💬 私信卖家</button>
-        <span v-else-if="user && user.id === product.userId" class="self-tip">这是你的商品</span>
-        <span v-if="product.status === 1" class="sold-tag">已售出</span>
+      <div class="product-copy">
+        <h1>{{ product.title }}</h1>
+        <div class="price">¥{{ product.price }}</div>
+        <div class="description">
+          <h3>商品描述</h3>
+          <p>{{ product.description }}</p>
+        </div>
+        <div class="info">
+          <p>卖家ID：{{ product.userId }}</p>
+          <p>分类：{{ getCategoryName(product.categoryId) }}</p>
+          <p v-if="product.spotName" class="spot-chip">📍 {{ product.spotName }}</p>
+          <p v-if="product.spotDescription" class="spot-description">{{ product.spotDescription }}</p>
+          <p>状态：{{ product.status === 0 ? '在售' : '已售' }}</p>
+          <p>浏览量：{{ product.views }}</p>
+        </div>
+        <div class="actions">
+          <button @click="addFavorite" :disabled="favorited">❤️ 收藏</button>
+          <button v-if="user && user.id !== product.userId && product.status === 0" @click="buyProduct" class="buy-btn">🛒 立即购买</button>
+          <button v-if="user && user.id !== product.userId" @click="goToChat">💬 私信卖家</button>
+          <span v-else-if="user && user.id === product.userId" class="self-tip">这是你的商品</span>
+          <span v-if="product.status === 1" class="sold-tag">已售出</span>
+        </div>
       </div>
     </div>
     <div v-else class="loading">加载中...</div>
@@ -183,71 +191,104 @@ onMounted(() => {
 
 <style scoped>
 .detail-container {
-  max-width: 800px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 20px;
+  padding: var(--space-lg);
+  font-family: var(--font-family);
+  color: var(--color-text-primary);
 }
 .product-detail {
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 8px;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-card);
+}
+.product-image-card {
+  align-self: start;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-page);
+  box-shadow: var(--shadow-sm);
+}
+.product-image-card img {
+  display: block;
+  width: 100%;
+  min-height: 280px;
+  max-height: 480px;
+  object-fit: cover;
 }
 .price {
-  font-size: 28px;
-  color: #f50;
-  font-weight: bold;
+  margin: var(--space-sm) 0 var(--space-lg);
+  color: var(--color-price);
+  font-size: 32px;
+  font-weight: 700;
 }
 .spot-description {
-  color: #777;
-  margin-top: -12px;
+  margin-top: -8px;
+  color: var(--color-text-secondary);
+}
+.spot-chip {
+  display: inline-flex;
+  width: fit-content;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
 }
 .actions {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
   flex-wrap: wrap;
   align-items: center;
 }
 .actions button {
   padding: 10px 20px;
-  background: #42b983;
+  background: var(--color-primary-gradient);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition-base);
+}
+.actions button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 .actions button:disabled {
-  background: #ccc;
+  background: var(--color-border);
   cursor: not-allowed;
 }
 .buy-btn {
-  background: #f56c6c;
+  background: var(--color-accent-gradient);
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-.buy-btn:hover {
-  background: #e74c3c;
 }
 .self-tip {
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 14px;
 }
 .sold-tag {
-  background: #999;
+  background: var(--color-text-tertiary);
   color: white;
   padding: 4px 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-pill);
   font-size: 14px;
 }
 .message-section {
-  margin-top: 30px;
+  margin-top: var(--space-lg);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
 }
 .message-item {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
   padding: 10px 0;
 }
 .message-input {
@@ -256,17 +297,31 @@ onMounted(() => {
 .message-input textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   min-height: 80px;
 }
 .message-input button {
   margin-top: 10px;
   padding: 8px 16px;
-  background: #42b983;
+  background: var(--color-primary-gradient);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
+}
+@media (max-width: 760px) {
+  .detail-container {
+    padding: var(--space-md);
+  }
+  .product-detail {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    padding: var(--space-md);
+  }
+  .product-image-card img {
+    min-height: 220px;
+    max-height: 360px;
+  }
 }
 </style>

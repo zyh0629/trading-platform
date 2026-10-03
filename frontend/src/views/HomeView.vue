@@ -156,27 +156,43 @@
             </div>
             <span class="section-more" @click="goToRecommend">查看全部 →</span>
           </div>
-          <div class="recommend-grid" v-loading="recommendLoading">
-            <div v-for="item in recommendList.slice(0, 6)" :key="item.id" class="recommend-card" @click="goToDetail(item.id)">
-              <div class="recommend-image">
-                <img :src="item.images || 'https://picsum.photos/400/300?random=' + item.id" alt="商品图片" />
-                <div class="recommend-tag">🔥 推荐</div>
+          <div class="recommend-grid">
+            <template v-if="recommendLoading">
+              <div v-for="index in 3" :key="`recommend-skeleton-${index}`" class="recommend-card-skeleton">
+                <el-skeleton animated>
+                  <template #template>
+                    <el-skeleton-item variant="image" class="recommend-skeleton-image" />
+                    <div class="skeleton-card-content">
+                      <el-skeleton-item variant="h3" />
+                      <el-skeleton-item variant="text" />
+                      <el-skeleton-item variant="text" />
+                    </div>
+                  </template>
+                </el-skeleton>
               </div>
-              <div class="recommend-info">
-                <h3>{{ item.title }}</h3>
-                <p>{{ item.description }}</p>
-                <div v-if="getSpotName(item)" class="product-spot">📍 {{ getSpotName(item) }}</div>
-                <div class="recommend-bottom">
-                  <span class="price">¥{{ item.price }}</span>
-                  <span class="like-count">❤️ {{ item.favoriteCount || 0 }}</span>
+            </template>
+            <template v-else>
+              <div v-for="item in recommendList.slice(0, 6)" :key="item.id" class="recommend-card" @click="goToDetail(item.id)">
+                <div class="recommend-image">
+                  <img :src="item.images || 'https://picsum.photos/400/300?random=' + item.id" alt="商品图片" />
+                  <div class="recommend-tag">🔥 推荐</div>
+                </div>
+                <div class="recommend-info">
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.description }}</p>
+                  <div v-if="getSpotName(item)" class="product-spot">📍 {{ getSpotName(item) }}</div>
+                  <div class="recommend-bottom">
+                    <span class="price">¥{{ item.price }}</span>
+                    <span class="like-count">❤️ {{ item.favoriteCount || 0 }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div v-if="recommendList.length === 0" class="empty-state">
-              <el-empty description="暂无推荐，去浏览更多商品吧">
-                <el-button type="primary" @click="loadRecommend">刷新推荐</el-button>
-              </el-empty>
-            </div>
+              <div v-if="recommendList.length === 0" class="empty-state">
+                <el-empty description="暂无推荐，去浏览更多商品吧">
+                  <el-button type="primary" @click="loadRecommend">刷新推荐</el-button>
+                </el-empty>
+              </div>
+            </template>
           </div>
         </div>
 
@@ -190,24 +206,42 @@
             </div>
             <span class="section-more">共 {{ productList.length }} 件</span>
           </div>
-          <div class="product-grid" v-loading="productLoading">
-            <div v-for="item in productList" :key="item.id" class="product-card" @click="goToDetail(item.id)">
-              <img :src="item.images || 'https://picsum.photos/300/200?random=' + item.id" class="product-image" />
-              <div class="product-info">
-                <h3>{{ item.title }}</h3>
-                <p>{{ item.description }}</p>
-                <div v-if="getSpotName(item)" class="product-spot">📍 {{ getSpotName(item) }}</div>
-                <div class="product-bottom">
-                  <span class="price">¥{{ item.price }}</span>
-                  <span class="views">👁 {{ item.views || 0 }}</span>
+          <div class="product-grid">
+            <template v-if="productLoading">
+              <div v-for="index in 4" :key="`product-skeleton-${index}`" class="product-card-skeleton">
+                <el-skeleton animated>
+                  <template #template>
+                    <el-skeleton-item variant="image" class="product-skeleton-image" />
+                    <div class="skeleton-card-content">
+                      <el-skeleton-item variant="h3" />
+                      <el-skeleton-item variant="text" />
+                      <el-skeleton-item variant="text" />
+                    </div>
+                  </template>
+                </el-skeleton>
+              </div>
+            </template>
+            <template v-else>
+              <div v-for="item in productList" :key="item.id" class="product-card" @click="goToDetail(item.id)">
+                <div class="product-image-wrap">
+                  <img :src="item.images || 'https://picsum.photos/300/200?random=' + item.id" class="product-image" />
+                </div>
+                <div class="product-info">
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.description }}</p>
+                  <div v-if="getSpotName(item)" class="product-spot">📍 {{ getSpotName(item) }}</div>
+                  <div class="product-bottom">
+                    <span class="price">¥{{ item.price }}</span>
+                    <span class="views">👁 {{ item.views || 0 }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div v-if="productList.length === 0" class="empty-state">
-              <el-empty description="暂无商品，快来发布吧">
-                <el-button type="primary" @click="goToPublish">发布商品</el-button>
-              </el-empty>
-            </div>
+              <div v-if="productList.length === 0" class="empty-state">
+                <el-empty description="暂无商品，快来发布吧">
+                  <el-button type="primary" @click="goToPublish">发布商品</el-button>
+                </el-empty>
+              </div>
+            </template>
           </div>
         </div>
         <MapView v-else :products="productList" />
@@ -416,16 +450,19 @@ onUnmounted(() => {
 <style scoped>
 .home {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
 }
 .header {
-  background: white;
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(12px);
   padding: 0 24px;
   height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -437,7 +474,7 @@ onUnmounted(() => {
   cursor: pointer;
 }
 .logo-icon { font-size: 28px; }
-.logo-text { font-size: 18px; font-weight: bold; color: #42b983; }
+.logo-text { font-size: 18px; font-weight: bold; color: var(--color-primary-dark); }
 .nav-right {
   display: flex;
   align-items: center;
@@ -463,32 +500,32 @@ onUnmounted(() => {
   display: flex;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
-  gap: 24px;
+  padding: var(--space-lg);
+  gap: var(--space-lg);
 }
 .sidebar {
   width: 220px;
   flex-shrink: 0;
 }
 .user-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
   padding: 20px;
   text-align: center;
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
 }
 .user-card h3 {
   margin: 12px 0 4px;
   font-size: 16px;
 }
 .user-card p {
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 12px;
 }
 .sidebar-menu {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
   border: none;
   padding: 8px 0;
 }
@@ -501,8 +538,8 @@ onUnmounted(() => {
   padding: 0 16px;
 }
 .sidebar-menu .el-menu-item.is-active {
-  background: #e6f7e6;
-  color: #42b983;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
 }
 .sidebar-menu .el-menu-item .el-icon {
   margin-right: 8px;
@@ -510,11 +547,22 @@ onUnmounted(() => {
 .content { flex: 1; }
 
 .banner {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--color-banner-gradient);
+  border-radius: var(--radius-lg);
   padding: 28px 36px;
   margin-bottom: 24px;
   color: white;
+}
+.banner::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(circle at 80% 50%, var(--color-banner-glow), transparent 50%);
+  pointer-events: none;
 }
 .banner-content {
   display: flex;
@@ -522,7 +570,7 @@ onUnmounted(() => {
   align-items: center;
 }
 .banner-tag {
-  background: rgba(255,255,255,0.2);
+  background: var(--color-banner-overlay);
   padding: 2px 12px;
   border-radius: 12px;
   font-size: 12px;
@@ -555,14 +603,40 @@ onUnmounted(() => {
 .stat-divider {
   width: 1px;
   height: 40px;
-  background: rgba(255,255,255,0.3);
+  background: var(--color-banner-divider);
 }
 
 .category-filter {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
   padding: 0 16px 12px;
   margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.category-filter :deep(.el-tabs__header) {
+  margin-bottom: 10px;
+}
+.category-filter :deep(.el-tabs__nav-wrap::after) {
+  display: none;
+}
+.category-filter :deep(.el-tabs__active-bar) {
+  display: none;
+}
+.category-filter :deep(.el-tabs__item) {
+  height: 36px;
+  margin: 8px 4px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+  transition: var(--transition-base);
+}
+.category-filter :deep(.el-tabs__item.is-active) {
+  color: white;
+  background: var(--color-primary-gradient);
+}
+.category-filter :deep(.el-tabs__item:hover:not(.is-active)) {
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
 }
 .view-mode-switch {
   display: flex;
@@ -574,7 +648,7 @@ onUnmounted(() => {
   margin: 0 0 4px 12px;
 }
 .product-spot {
-  color: #7c3aed;
+  color: var(--color-primary-dark);
   font-size: 12px;
   margin-bottom: 8px;
   white-space: nowrap;
@@ -602,22 +676,22 @@ onUnmounted(() => {
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 .section-badge {
   font-size: 11px;
-  color: #42b983;
-  background: #e6f7e6;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
   padding: 2px 10px;
   border-radius: 10px;
 }
 .section-more {
   font-size: 13px;
-  color: #999;
+  color: var(--color-text-tertiary);
   cursor: pointer;
 }
 .section-more:hover {
-  color: #42b983;
+  color: var(--color-primary-dark);
 }
 
 .recommend-grid {
@@ -626,33 +700,37 @@ onUnmounted(() => {
   gap: 18px;
 }
 .recommend-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-card);
 }
 .recommend-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  box-shadow: var(--shadow-card-hover);
 }
 .recommend-image {
   position: relative;
   height: 140px;
   overflow: hidden;
-  background: #f0f0f0;
+  background: var(--color-bg-media);
 }
 .recommend-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s;
+}
+.recommend-card:hover .recommend-image img {
+  transform: scale(1.05);
 }
 .recommend-tag {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: #ff6b6b;
+  background: var(--color-accent-gradient);
   color: white;
   font-size: 11px;
   padding: 2px 10px;
@@ -662,14 +740,15 @@ onUnmounted(() => {
   padding: 12px 14px;
 }
 .recommend-info h3 {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 700;
   margin: 0 0 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .recommend-info p {
-  color: #999;
+  color: var(--color-text-secondary);
   font-size: 12px;
   margin-bottom: 8px;
   height: 32px;
@@ -681,13 +760,13 @@ onUnmounted(() => {
   align-items: center;
 }
 .recommend-bottom .price {
-  color: #f50;
-  font-size: 16px;
-  font-weight: bold;
+  color: var(--color-price);
+  font-size: 18px;
+  font-weight: 700;
 }
 .like-count {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .product-grid {
@@ -696,35 +775,43 @@ onUnmounted(() => {
   gap: 16px;
 }
 .product-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-card);
 }
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-card-hover);
+}
+.product-image-wrap {
+  overflow: hidden;
 }
 .product-image {
   width: 100%;
   height: 130px;
   object-fit: cover;
-  background: #f0f0f0;
+  background: var(--color-bg-media);
+  transition: transform 0.4s;
+}
+.product-card:hover .product-image {
+  transform: scale(1.05);
 }
 .product-info {
   padding: 10px 12px;
 }
 .product-info h3 {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 700;
   margin: 0 0 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .product-info p {
-  color: #999;
+  color: var(--color-text-secondary);
   font-size: 12px;
   margin-bottom: 8px;
   height: 32px;
@@ -736,16 +823,79 @@ onUnmounted(() => {
   align-items: center;
 }
 .product-bottom .price {
-  color: #f50;
-  font-size: 16px;
-  font-weight: bold;
+  color: var(--color-price);
+  font-size: 18px;
+  font-weight: 700;
 }
 .views {
   font-size: 12px;
-  color: #bbb;
+  color: var(--color-text-tertiary);
 }
 .empty-state {
   grid-column: 1 / -1;
   padding: 40px 0;
+}
+.product-card-skeleton,
+.recommend-card-skeleton {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-card);
+}
+.product-skeleton-image,
+.recommend-skeleton-image {
+  width: 100%;
+  height: 140px;
+}
+.skeleton-card-content {
+  display: grid;
+  gap: 10px;
+  padding: var(--space-md);
+}
+
+@media (max-width: 900px) {
+  .main-layout {
+    padding: var(--space-md);
+    gap: var(--space-md);
+  }
+  .sidebar {
+    width: 190px;
+  }
+}
+@media (max-width: 700px) {
+  .main-layout {
+    display: block;
+    padding: var(--space-sm);
+  }
+  .sidebar {
+    display: none;
+  }
+  .header {
+    padding: 0 14px;
+  }
+  .logo-text {
+    font-size: 16px;
+  }
+  .banner {
+    padding: 22px;
+  }
+  .banner-content {
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .banner-stats {
+    gap: 10px;
+  }
+  .stat-num {
+    font-size: 22px;
+  }
+  .spot-filter {
+    margin-left: 0;
+  }
+  .recommend-grid,
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
 }
 </style>

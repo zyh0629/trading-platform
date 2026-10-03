@@ -79,7 +79,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="handlePublish" :loading="submitting">发布商品</el-button>
+        <el-button class="submit-button" type="primary" @click="handlePublish" :loading="submitting">发布商品</el-button>
         <el-button @click="$router.push('/')">取消</el-button>
       </el-form-item>
     </el-form>
@@ -314,9 +314,10 @@ onMounted(loadSpots)
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 .publish-container h2 {
   margin-bottom: 24px;
@@ -327,20 +328,24 @@ onMounted(loadSpots)
 }
 .el-upload__tip {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-secondary);
   margin-top: 4px;
 }
 .ai-generate-button {
   display: flex;
   margin-bottom: 8px;
   border: none;
-  color: white;
-  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: var(--color-bg-card);
+  background: var(--color-accent-gradient);
 }
 .ai-generate-button:hover,
 .ai-generate-button:focus {
-  color: white;
-  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: var(--color-bg-card);
+  background: var(--color-accent-gradient);
+}
+:deep(.submit-button) {
+  border: 0;
+  background: var(--color-primary-gradient);
 }
 .my-spot-list {
   display: flex;
@@ -349,7 +354,14 @@ onMounted(loadSpots)
   margin-top: 6px;
 }
 .my-spot-item {
-  color: #606266;
+  color: var(--color-text-secondary);
   font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .publish-container {
+    margin: var(--space-sm);
+    padding: var(--space-md);
+  }
 }
 </style>

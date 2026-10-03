@@ -189,7 +189,7 @@ onMounted(() => {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
 }
 .tabs button {
   padding: 10px 20px;
@@ -197,13 +197,21 @@ onMounted(() => {
   border: none;
   cursor: pointer;
   font-size: 16px;
+  color: var(--color-text-secondary);
+  transition: var(--transition-base);
 }
 .tabs button.active {
-  border-bottom: 2px solid #42b983;
-  color: #42b983;
+  border-bottom: 2px solid var(--color-primary);
+  color: var(--color-primary-dark);
+  font-weight: 600;
 }
 .tab-content {
   min-height: 400px;
+  padding: var(--space-lg);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 .info-form {
   max-width: 400px;
@@ -219,15 +227,16 @@ onMounted(() => {
 .form-group input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
 }
 .info-form button {
   padding: 10px 20px;
-  background: #42b983;
-  color: white;
+  background: var(--color-primary-gradient);
+  color: var(--color-bg-card);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 .product-list {
@@ -240,8 +249,15 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-base);
+}
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
 }
 .product-info h3 {
   margin: 0 0 5px 0;
@@ -251,37 +267,59 @@ onMounted(() => {
   gap: 8px;
 }
 .price {
-  color: #f50;
+  color: var(--color-price);
   font-weight: bold;
   margin-right: 10px;
 }
 .status {
   font-size: 12px;
   padding: 2px 6px;
-  border-radius: 4px;
-  background: #4caf50;
-  color: white;
+  border-radius: var(--radius-pill);
+  background: var(--color-success);
+  color: var(--color-bg-card);
 }
 .status.sold {
-  background: #999;
+  background: var(--color-text-tertiary);
 }
 .edit-btn {
   padding: 6px 12px;
-  background: #409eff;
-  color: white;
+  background: var(--color-primary-gradient);
+  color: var(--color-bg-card);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 .off-btn, .unfav-btn {
   padding: 6px 12px;
-  background: #ff9800;
-  color: white;
+  background: var(--color-accent-gradient);
+  color: var(--color-bg-card);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 .unfav-btn {
-  background: #f44336;
+  background: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+  .profile-container {
+    padding: var(--space-sm);
+  }
+  .tabs {
+    gap: 0;
+    overflow-x: auto;
+  }
+  .tabs button {
+    padding: var(--space-sm) 12px;
+    white-space: nowrap;
+  }
+  .tab-content {
+    padding: var(--space-md);
+  }
+  .product-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
 }
 </style>

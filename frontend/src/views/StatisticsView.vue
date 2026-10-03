@@ -91,6 +91,7 @@ const userChartRef = ref(null)
 const categoryChartRef = ref(null)
 const tradeChartRef = ref(null)
 const recommendChartRef = ref(null)
+const themeColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 
 // 加载所有数据
 const loadAllData = async () => {
@@ -133,9 +134,9 @@ const loadUserTrend = async () => {
           name: '新增用户',
           type: 'line',
           smooth: true,
-          areaStyle: { color: 'rgba(102, 126, 234, 0.3)' },
-          lineStyle: { color: '#667eea', width: 3 },
-          itemStyle: { color: '#667eea' }
+          areaStyle: { color: themeColor('--color-primary-chart-fill') },
+          lineStyle: { color: themeColor('--color-primary'), width: 3 },
+          itemStyle: { color: themeColor('--color-primary') }
         }]
       })
     }
@@ -151,7 +152,12 @@ const loadCategoryStats = async () => {
     const data = res || []
 
     if (categoryChart && data.length > 0) {
-      const colors = ['#42b983', '#667eea', '#f5af19', '#f56c6c']
+      const colors = [
+        themeColor('--color-primary'),
+        themeColor('--color-primary-dark'),
+        themeColor('--color-primary-muted'),
+        themeColor('--color-primary-pale')
+      ]
       categoryChart.setOption({
         tooltip: { trigger: 'item', formatter: '{b}: {c}件 ({d}%)' },
         legend: { orient: 'vertical', left: 'left' },
@@ -187,8 +193,8 @@ const loadTradeTrend = async () => {
           barWidth: '40%',
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#42b983' },
-              { offset: 1, color: '#2d8b5e' }
+              { offset: 0, color: themeColor('--color-primary-light') },
+              { offset: 1, color: themeColor('--color-primary-dark') }
             ])
           }
         }]
@@ -221,24 +227,24 @@ const loadRecommendStats = async () => {
             lineStyle: {
               width: 18,
               color: [
-                [0.3, '#f56c6c'],
-                [0.7, '#e6a23c'],
-                [1, '#67c23a']
+                [0.3, themeColor('--color-primary-dark')],
+                [0.7, themeColor('--color-primary')],
+                [1, themeColor('--color-primary-light')]
               ]
             }
           },
           axisTick: { show: false },
           splitLine: { show: false },
-          axisLabel: { show: true, fontSize: 12, color: '#999' },
+          axisLabel: { show: true, fontSize: 12, color: themeColor('--color-text-secondary') },
           pointer: { show: true, length: '60%', width: 6 },
           detail: {
             valueAnimation: true,
             fontSize: 28,
             fontWeight: 'bold',
-            color: '#333',
+            color: themeColor('--color-text-primary'),
             offsetCenter: [0, 20]
           },
-          title: { show: true, offsetCenter: [0, -20], fontSize: 14, color: '#999' },
+          title: { show: true, offsetCenter: [0, -20], fontSize: 14, color: themeColor('--color-text-secondary') },
           data: [{ value: rate, name: '点击率' }]
         }]
       })
@@ -301,13 +307,14 @@ onUnmounted(() => {
   gap: 16px;
   margin-bottom: 24px;
   padding: 16px 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 .filter-bar label {
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 .filter-bar .el-select {
   width: 150px;
@@ -323,9 +330,15 @@ onUnmounted(() => {
   align-items: center;
   gap: 16px;
   padding: 20px 24px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-base);
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
 }
 .stat-icon {
   font-size: 32px;
@@ -333,14 +346,14 @@ onUnmounted(() => {
 .stat-info h3 {
   margin: 0 0 4px;
   font-size: 13px;
-  color: #999;
+  color: var(--color-text-secondary);
   font-weight: 400;
 }
 .stat-number {
   margin: 0;
   font-size: 24px;
   font-weight: bold;
-  color: #333;
+  color: var(--color-primary-dark);
 }
 .charts-row {
   display: grid;
@@ -349,18 +362,42 @@ onUnmounted(() => {
   margin-bottom: 20px;
 }
 .chart-box {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-card);
 }
 .chart-box h3 {
   margin: 0 0 16px;
   font-size: 16px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 .chart {
   width: 100%;
   height: 320px;
+}
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .statistics-container {
+    padding: var(--space-sm);
+  }
+  .filter-bar {
+    flex-wrap: wrap;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+  .chart {
+    height: 260px;
+  }
 }
 </style>

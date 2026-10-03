@@ -150,24 +150,34 @@ onMounted(() => {
 .tabs button {
   padding: 8px 20px;
   border: none;
-  background: #f5f5f5;
-  border-radius: 4px;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
   cursor: pointer;
   font-size: 14px;
+  transition: var(--transition-base);
 }
 .tabs button.active {
-  background: #42b983;
-  color: white;
+  background: var(--color-primary-gradient);
+  color: var(--color-bg-card);
+  border-color: transparent;
 }
 .order-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   margin-bottom: 12px;
-  background: white;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-base);
+}
+.order-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
 }
 .order-info h3 {
   margin: 0 0 8px;
@@ -182,31 +192,57 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 .confirm-btn {
-  background: #42b983;
-  color: white;
+  background: var(--color-primary-gradient);
+  color: var(--color-bg-card);
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 .cancel-btn {
-  background: #f56c6c;
-  color: white;
+  background: var(--color-danger);
+  color: var(--color-bg-card);
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 .chat-btn {
-  background: #667eea;
-  color: white;
+  background: var(--color-primary-gradient);
+  color: var(--color-bg-card);
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
-.status-pending { color: #e6a23c; }
-.status-confirmed { color: #42b983; }
-.status-canceled { color: #999; }
-.status-done { color: #409eff; }
+.status-pending {
+  color: var(--color-warning);
+  background: var(--color-primary-soft);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+}
+.status-confirmed,
+.status-done {
+  color: var(--color-success);
+  background: var(--color-primary-soft);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+}
+.status-canceled {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-page);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+}
+
+@media (max-width: 640px) {
+  .order-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .order-actions {
+    width: 100%;
+  }
+}
 </style>

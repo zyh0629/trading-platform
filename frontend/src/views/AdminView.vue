@@ -42,28 +42,28 @@
       <!-- 数据统计 -->
       <div v-if="activeMenu === 'stats'" class="admin-panel">
         <div class="stats-grid">
-          <div class="stat-card" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+          <div class="stat-card">
             <div class="stat-icon">👤</div>
             <div>
               <div class="stat-num">{{ totalUsers }}</div>
               <div class="stat-label">总用户</div>
             </div>
           </div>
-          <div class="stat-card" style="background: linear-gradient(135deg, #42b983, #2d8b5e);">
+          <div class="stat-card">
             <div class="stat-icon">📦</div>
             <div>
               <div class="stat-num">{{ totalProducts }}</div>
               <div class="stat-label">总商品</div>
             </div>
           </div>
-          <div class="stat-card" style="background: linear-gradient(135deg, #f5af19, #f12711);">
+          <div class="stat-card">
             <div class="stat-icon">🛒</div>
             <div>
               <div class="stat-num">{{ totalTrades }}</div>
               <div class="stat-label">总交易</div>
             </div>
           </div>
-          <div class="stat-card" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+          <div class="stat-card">
             <div class="stat-icon">📈</div>
             <div>
               <div class="stat-num">{{ recommendRate }}%</div>
@@ -278,6 +278,7 @@ const statsUserChartRef = ref(null)
 const statsCategoryChartRef = ref(null)
 const statsTradeChartRef = ref(null)
 const statsRecommendChartRef = ref(null)
+const themeColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 
 const handleMenuSelect = (index) => {
   const titles = { stats: '数据统计', users: '用户管理', products: '商品管理', spots: '交易点管理', orders: '交易管理' }
@@ -361,7 +362,14 @@ const loadStatsData = async () => {
         tooltip: { trigger: 'axis' },
         xAxis: { data: dates },
         yAxis: { type: 'value', name: '人数' },
-        series: [{ data: counts, type: 'line', smooth: true, areaStyle: {} }]
+        series: [{
+          data: counts,
+          type: 'line',
+          smooth: true,
+          areaStyle: { color: themeColor('--color-primary-chart-fill') },
+          lineStyle: { color: themeColor('--color-primary'), width: 3 },
+          itemStyle: { color: themeColor('--color-primary') }
+        }]
       })
     }
 
@@ -371,7 +379,20 @@ const loadStatsData = async () => {
     if (statsCategoryChart && catData.length > 0) {
       statsCategoryChart.setOption({
         tooltip: { trigger: 'item', formatter: '{b}: {c}件 ({d}%)' },
-        series: [{ data: catData, type: 'pie', radius: ['40%', '70%'], label: { formatter: '{b}\n{d}%' } }]
+        series: [{
+          data: catData.map((item, index) => {
+            const colors = [
+              themeColor('--color-primary'),
+              themeColor('--color-primary-dark'),
+              themeColor('--color-primary-muted'),
+              themeColor('--color-primary-pale')
+            ]
+            return { ...item, itemStyle: { color: colors[index % colors.length] } }
+          }),
+          type: 'pie',
+          radius: ['40%', '70%'],
+          label: { formatter: '{b}\n{d}%' }
+        }]
       })
     }
 
@@ -384,7 +405,16 @@ const loadStatsData = async () => {
         tooltip: { trigger: 'axis' },
         xAxis: { data: tradeDates },
         yAxis: { type: 'value', name: '交易量' },
-        series: [{ data: tradeCounts, type: 'bar' }]
+        series: [{
+          data: tradeCounts,
+          type: 'bar',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: themeColor('--color-primary-light') },
+              { offset: 1, color: themeColor('--color-primary-dark') }
+            ])
+          }
+        }]
       })
     }
 
@@ -398,7 +428,16 @@ const loadStatsData = async () => {
           center: ['50%', '50%'],
           radius: '70%',
           progress: { show: true },
-          axisLine: { lineStyle: { width: 18, color: [[0.3, '#f56c6c'], [0.7, '#e6a23c'], [1, '#67c23a']] } },
+          axisLine: {
+            lineStyle: {
+              width: 18,
+              color: [
+                [0.3, themeColor('--color-primary-dark')],
+                [0.7, themeColor('--color-primary')],
+                [1, themeColor('--color-primary-light')]
+              ]
+            }
+          },
           axisTick: { show: false },
           splitLine: { show: false },
           axisLabel: { show: false },
@@ -490,7 +529,13 @@ const initCharts = () => {
       tooltip: { trigger: 'axis' },
       xAxis: { type: 'category' },
       yAxis: { type: 'value', name: '人数' },
-      series: [{ type: 'line', smooth: true, areaStyle: {} }]
+      series: [{
+        type: 'line',
+        smooth: true,
+        areaStyle: { color: themeColor('--color-primary-chart-fill') },
+        lineStyle: { color: themeColor('--color-primary'), width: 3 },
+        itemStyle: { color: themeColor('--color-primary') }
+      }]
     })
   }
   if (statsCategoryChartRef.value) {
@@ -498,7 +543,17 @@ const initCharts = () => {
     statsCategoryChart = echarts.init(statsCategoryChartRef.value)
     statsCategoryChart.setOption({
       tooltip: { trigger: 'item' },
-      series: [{ type: 'pie', radius: ['40%', '70%'], label: { formatter: '{b}\n{d}%' } }]
+      series: [{
+        type: 'pie',
+        radius: ['40%', '70%'],
+        color: [
+          themeColor('--color-primary'),
+          themeColor('--color-primary-dark'),
+          themeColor('--color-primary-muted'),
+          themeColor('--color-primary-pale')
+        ],
+        label: { formatter: '{b}\n{d}%' }
+      }]
     })
   }
   if (statsTradeChartRef.value) {
@@ -563,12 +618,12 @@ onUnmounted(() => {
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background: #f0f2f5;
+  background: var(--color-bg-page);
 }
 .admin-sidebar {
   width: 220px;
-  background: #1a1a2e;
-  color: white;
+  background: var(--color-text-primary);
+  color: var(--color-bg-card);
   min-height: 100vh;
   padding: 20px 0;
   flex-shrink: 0;
@@ -577,7 +632,7 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: bold;
   padding: 0 20px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid var(--color-banner-divider);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -591,19 +646,19 @@ onUnmounted(() => {
   padding: 10px 0;
 }
 .admin-menu .el-menu-item {
-  color: rgba(255,255,255,0.7);
-  border-radius: 8px;
+  color: var(--color-text-tertiary);
+  border-radius: var(--radius-md);
   margin: 4px 12px;
   padding: 0 16px;
   height: 44px;
 }
 .admin-menu .el-menu-item:hover {
-  background: rgba(255,255,255,0.1);
-  color: white;
+  background: var(--color-banner-overlay);
+  color: var(--color-bg-card);
 }
 .admin-menu .el-menu-item.is-active {
-  background: #42b983;
-  color: white;
+  background: var(--color-primary-gradient);
+  color: var(--color-bg-card);
 }
 .admin-menu .el-menu-item .el-icon {
   margin-right: 10px;
@@ -617,9 +672,10 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-card);
   padding: 16px 24px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   margin-bottom: 20px;
 }
 .admin-header h2 {
@@ -632,8 +688,9 @@ onUnmounted(() => {
   gap: 16px;
 }
 .admin-panel {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 20px;
 }
 .stats-grid {
@@ -647,8 +704,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 20px;
   padding: 24px;
-  border-radius: 12px;
-  color: white;
+  border-radius: var(--radius-lg);
+  color: var(--color-bg-card);
+  background: var(--color-primary-gradient);
+  box-shadow: var(--shadow-card);
 }
 .stat-card .stat-icon {
   font-size: 36px;
@@ -667,8 +726,8 @@ onUnmounted(() => {
   gap: 16px;
   margin-bottom: 20px;
   padding: 12px 16px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-md);
 }
 .charts-row {
   display: grid;
@@ -677,17 +736,56 @@ onUnmounted(() => {
   margin-bottom: 20px;
 }
 .chart-box {
-  background: #fafafa;
-  border-radius: 8px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 16px;
+  box-shadow: var(--shadow-card);
 }
 .chart-box h4 {
   margin: 0 0 12px;
   font-size: 14px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 .chart {
   width: 100%;
   height: 280px;
+}
+:deep(.el-table th.el-table__cell) {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+:deep(.el-table tr) {
+  background: var(--color-bg-card);
+}
+:deep(.el-button) {
+  border-radius: var(--radius-md);
+}
+:deep(.el-button--primary) {
+  border-color: transparent;
+  background: var(--color-primary-gradient);
+}
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+  .admin-sidebar {
+    width: 100%;
+    min-height: auto;
+    padding: var(--space-sm) 0;
+  }
+  .admin-menu {
+    display: flex;
+    overflow-x: auto;
+  }
+  .admin-menu .el-menu-item {
+    flex: 0 0 auto;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
