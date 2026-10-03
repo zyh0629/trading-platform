@@ -197,7 +197,11 @@ const handleUpdate = async () => {
     ElMessage.success('修改成功！')
     setTimeout(() => router.push('/'), 1500)
   } catch (error) {
-    ElMessage.error('修改失败，请稍后重试')
+    ElMessage({
+      message: error.message || '修改失败，请稍后重试',
+      type: 'error',
+      duration: 8000
+    })
   } finally {
     submitting.value = false
   }

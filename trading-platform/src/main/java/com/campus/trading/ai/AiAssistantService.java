@@ -1,5 +1,10 @@
 package com.campus.trading.ai;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -7,6 +12,7 @@ import java.util.Locale;
 
 @Service
 public class AiAssistantService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AiAssistantService.class);
     private static final int MAX_QUESTION_LENGTH = 1000;
     private static final int MAX_PRODUCT_DESCRIPTION_LENGTH = 200;
     private static final int MIN_PRODUCT_DESCRIPTION_LENGTH = 5;
@@ -19,10 +25,15 @@ public class AiAssistantService {
 
     private final KnowledgeBase knowledgeBase;
     private final LlmClient llmClient;
+    private final ObjectMapper objectMapper;
+    private final SensitiveWordFilter sensitiveWordFilter;
 
-    public AiAssistantService(KnowledgeBase knowledgeBase, LlmClient llmClient) {
+    public AiAssistantService(KnowledgeBase knowledgeBase, LlmClient llmClient,
+                              ObjectMapper objectMapper, SensitiveWordFilter sensitiveWordFilter) {
         this.knowledgeBase = knowledgeBase;
         this.llmClient = llmClient;
+        this.objectMapper = objectMapper;
+        this.sensitiveWordFilter = sensitiveWordFilter;
     }
 
     public AskResponse ask(String question) {
@@ -96,6 +107,37 @@ public class AiAssistantService {
         }
         return description;
     }
+
+    public AuditResult auditProduct(String title, String description) {
+        String violation = sensitiveWordFilter.findViolation(title, description);
+        if (violation != null) {
+            return new AuditResult(false, violation);
+        }
+
+        String systemPrompt = """
+                你是电商平台的内容审核员。
+                检查以下商品是否存在：违禁品、虚假宣传、敏感信息（手机号/微信/QQ）、
+                广告导流。只返回 JSON：{"passed": true/false, "reason": "..."}
+                不要返回其它内容。
+                """;
+        String userPrompt = "商品标题：" + title + "\n商品描述：" + description;
+        try {
+            JsonNode result = objectMapper.readTree(llmClient.ask(systemPrompt, userPrompt));
+            JsonNode passed = result.path("passed");
+            JsonNode reason = result.path("reason");
+            if (!passed.isBoolean() || !reason.isTextual()) {
+                throw new IllegalArgumentException("AI 审核结果格式无效");
+            }
+            return new AuditResult(passed.booleanValue(),
+                    passed.booleanValue() ? "" : reason.asText().isBlank()
+                            ? "未通过内容审核" : reason.asText());
+        } catch (JsonProcessingException | RuntimeException exception) {
+            LOGGER.warn("AI 商品审核不可用，按降级策略放行：{}", exception.getMessage());
+            return new AuditResult(true, "AI 审核暂不可用，已降级放行");
+        }
+    }
+
+    public record AuditResult(boolean passed, String reason) {}
 
     private void validate(String question) {
         if (question == null || question.isBlank()) {

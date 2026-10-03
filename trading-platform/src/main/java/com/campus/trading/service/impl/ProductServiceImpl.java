@@ -1,6 +1,7 @@
 package com.campus.trading.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.campus.trading.ai.AiAssistantService;
 import com.campus.trading.entity.Product;
 import com.campus.trading.mapper.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,12 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductMapper productMapper;
 
+    @Autowired
+    private AiAssistantService aiAssistantService;
+
     @Override
     public boolean addProduct(Product product) {
+        auditProduct(product);
         product.setStatus(0);
         product.setViews(0);
         product.setCreateTime(LocalDateTime.now());
@@ -74,8 +79,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public boolean updateProduct(Product product) {
+        auditProduct(product);
         product.setUpdateTime(LocalDateTime.now());
         return productMapper.updateById(product) > 0;
+    }
+
+    private void auditProduct(Product product) {
+        AiAssistantService.AuditResult auditResult =
+                aiAssistantService.auditProduct(product.getTitle(), product.getDescription());
+        if (!auditResult.passed()) {
+            throw new IllegalArgumentException("商品未通过审核：" + auditResult.reason());
+        }
     }
 
     @Override

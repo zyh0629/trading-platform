@@ -224,7 +224,11 @@ const handlePublish = async () => {
       ElMessage.error(res || '发布失败')
     }
   } catch (error) {
-    ElMessage.error('发布失败，请稍后重试')
+    ElMessage({
+      message: error.message || '发布失败，请稍后重试',
+      type: 'error',
+      duration: 8000
+    })
   } finally {
     submitting.value = false
   }
