@@ -8,6 +8,14 @@
       </el-form-item>
 
       <el-form-item label="商品描述" prop="description">
+        <el-button
+          class="ai-generate-button"
+          :loading="generatingDescription"
+          :disabled="generatingDescription"
+          @click="generateDescription"
+        >
+          {{ generatingDescription ? '生成中...' : '✨ AI 生成描述' }}
+        </el-button>
         <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请详细描述商品情况（10-200字）" />
       </el-form-item>
 
@@ -65,6 +73,7 @@ import request from '../api/request'
 
 const router = useRouter()
 const submitting = ref(false)
+const generatingDescription = ref(false)
 const message = ref('')
 const messageType = ref('')
 
@@ -136,6 +145,52 @@ const beforeUpload = (file) => {
   return true
 }
 
+const generateDescription = async () => {
+  if (!form.value.title.trim()) {
+    ElMessage.warning('请先填写商品标题')
+    return
+  }
+  if (!form.value.categoryId) {
+    ElMessage.warning('请先选择商品分类')
+    return
+  }
+
+  const categoryNames = {
+    1: '教材教辅',
+    2: '电子产品',
+    3: '生活用品',
+    4: '其他'
+  }
+
+  generatingDescription.value = true
+  try {
+    const result = await request.post('/ai/generate-description', {
+      title: form.value.title.trim(),
+      category: categoryNames[form.value.categoryId] || '其他'
+    })
+    const description = result.description || ''
+    const descriptionChars = Array.from(description.trim())
+    if (descriptionChars.length > 200) {
+      const punctuation = /[。！？；，]/
+      let endIndex = 200
+      for (let index = 199; index >= 0; index--) {
+        if (punctuation.test(descriptionChars[index])) {
+          endIndex = index + 1
+          break
+        }
+      }
+      form.value.description = descriptionChars.slice(0, endIndex).join('')
+      ElMessage.warning('描述已自动截断到 200 字以内')
+    } else {
+      form.value.description = description.trim()
+    }
+  } catch (error) {
+    ElMessage.error(error.response?.data?.message || error.message || '描述生成失败，请稍后重试')
+  } finally {
+    generatingDescription.value = false
+  }
+}
+
 const handlePublish = async () => {
   // 表单校验
   const valid = await formRef.value?.validate().catch(() => false)
@@ -196,5 +251,17 @@ const handlePublish = async () => {
   font-size: 12px;
   color: #999;
   margin-top: 4px;
+}
+.ai-generate-button {
+  display: flex;
+  margin-bottom: 8px;
+  border: none;
+  color: white;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+}
+.ai-generate-button:hover,
+.ai-generate-button:focus {
+  color: white;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
 }
 </style>
