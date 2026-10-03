@@ -2,6 +2,7 @@ package com.campus.trading.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -23,6 +24,14 @@ public class Product {
     private BigDecimal price;
 
     private Integer categoryId;
+
+    private Long spotId;
+
+    @TableField(exist = false)
+    private String spotName;
+
+    @TableField(exist = false)
+    private String spotDescription;
 
     private String images;
 

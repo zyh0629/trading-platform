@@ -32,6 +32,29 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="交易点" prop="spotId">
+        <el-select
+          v-model="form.spotId"
+          placeholder="📍 选择交易点"
+          filterable
+          @change="handleSpotSelection"
+        >
+          <el-option
+            v-for="spot in spotList"
+            :key="spot.id"
+            :label="spot.isPublic === 0 ? `📍 我的：${spot.name}` : spot.name"
+            :value="spot.id"
+          />
+          <el-option label="➕ 新增交易点" value="__add__" />
+        </el-select>
+        <div v-if="mySpotList.length" class="my-spot-list">
+          <span v-for="spot in mySpotList" :key="spot.id" class="my-spot-item">
+            📍 {{ spot.name }}
+            <el-button link type="danger" size="small" @click.stop="deleteMySpot(spot)">删除</el-button>
+          </span>
+        </div>
+      </el-form-item>
+
       <!-- 商品图片上传 -->
       <el-form-item label="商品图片" prop="images">
         <el-upload
@@ -61,19 +84,25 @@
       </el-form-item>
     </el-form>
 
+    <CampusSpotDialog v-model="spotDialogVisible" @created="handleSpotCreated" />
     <p v-if="message" :class="messageType">{{ message }}</p>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '../api/request'
+import CampusSpotDialog from '../components/CampusSpotDialog.vue'
 
 const router = useRouter()
 const submitting = ref(false)
 const generatingDescription = ref(false)
+const spotList = ref([])
+const mySpotList = ref([])
+const spotDialogVisible = ref(false)
+const ADD_SPOT_OPTION = '__add__'
 const message = ref('')
 const messageType = ref('')
 
@@ -84,6 +113,7 @@ const form = ref({
   description: '',
   price: '',
   categoryId: '',
+  spotId: '',
   images: ''
 })
 
@@ -112,7 +142,48 @@ const rules = {
   ],
   categoryId: [
     { required: true, message: '请选择商品分类', trigger: 'change' }
+  ],
+  spotId: [
+    { required: true, message: '请选择校内交易点', trigger: 'change' }
   ]
+}
+
+const loadSpots = async () => {
+  try {
+    const [allSpots, mySpots] = await Promise.all([
+      request.get('/campus-spot/list'),
+      request.get('/campus-spot/my')
+    ])
+    spotList.value = Array.isArray(allSpots) ? allSpots : []
+    mySpotList.value = Array.isArray(mySpots) ? mySpots : []
+  } catch (error) {
+    ElMessage.error(error.message || '加载交易点失败')
+  }
+}
+
+const handleSpotSelection = (value) => {
+  if (value === ADD_SPOT_OPTION) {
+    form.value.spotId = ''
+    spotDialogVisible.value = true
+  }
+}
+
+const handleSpotCreated = async (spot) => {
+  await loadSpots()
+  form.value.spotId = spot.id
+  ElMessage.success('私有交易点已创建')
+}
+
+const deleteMySpot = async (spot) => {
+  if (!window.confirm(`确定删除私有交易点“${spot.name}”吗？`)) return
+  try {
+    await request.delete(`/campus-spot/my/${spot.id}`)
+    if (form.value.spotId === spot.id) form.value.spotId = ''
+    await loadSpots()
+    ElMessage.success('私有交易点已删除')
+  } catch (error) {
+    ElMessage.error(error.message || '删除交易点失败')
+  }
 }
 
 // 上传成功回调
@@ -214,6 +285,7 @@ const handlePublish = async () => {
       description: form.value.description,
       price: parseFloat(form.value.price),
       categoryId: parseInt(form.value.categoryId),
+      spotId: form.value.spotId,
       images: form.value.images
     })
 
@@ -233,6 +305,8 @@ const handlePublish = async () => {
     submitting.value = false
   }
 }
+
+onMounted(loadSpots)
 </script>
 
 <style scoped>
@@ -267,5 +341,15 @@ const handlePublish = async () => {
 .ai-generate-button:focus {
   color: white;
   background: linear-gradient(135deg, #7c3aed, #4f46e5);
+}
+.my-spot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 6px;
+}
+.my-spot-item {
+  color: #606266;
+  font-size: 12px;
 }
 </style>

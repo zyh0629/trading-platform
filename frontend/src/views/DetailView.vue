@@ -10,6 +10,8 @@
       <div class="info">
         <p>卖家ID：{{ product.userId }}</p>
         <p>分类：{{ getCategoryName(product.categoryId) }}</p>
+        <p v-if="product.spotName">📍 交易点：{{ product.spotName }}</p>
+        <p v-if="product.spotDescription" class="spot-description">{{ product.spotDescription }}</p>
         <p>状态：{{ product.status === 0 ? '在售' : '已售' }}</p>
         <p>浏览量：{{ product.views }}</p>
       </div>
@@ -194,6 +196,10 @@ onMounted(() => {
   font-size: 28px;
   color: #f50;
   font-weight: bold;
+}
+.spot-description {
+  color: #777;
+  margin-top: -12px;
 }
 .actions {
   display: flex;

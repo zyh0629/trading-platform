@@ -110,6 +110,17 @@
         </div>
 
         <!-- 分类筛选 -->
+        <div class="view-mode-switch">
+          <el-button-group>
+            <el-button :type="viewMode === 'list' ? 'primary' : 'default'" @click="viewMode = 'list'">
+              列表模式
+            </el-button>
+            <el-button :type="viewMode === 'map' ? 'primary' : 'default'" @click="viewMode = 'map'">
+              地图模式
+            </el-button>
+          </el-button-group>
+        </div>
+
         <div class="category-filter">
           <el-tabs v-model="activeCategory" @tab-click="handleCategoryChange">
             <el-tab-pane label="全部" name="all"></el-tab-pane>
@@ -118,10 +129,25 @@
             <el-tab-pane label="🏠 生活用品" name="3"></el-tab-pane>
             <el-tab-pane label="⚽ 体育器材" name="4"></el-tab-pane>
           </el-tabs>
+          <el-select
+            v-model="activeSpotId"
+            placeholder="📍 按交易点筛选"
+            clearable
+            class="spot-filter"
+            @change="loadProducts"
+          >
+            <el-option label="全部交易点" value="" />
+            <el-option
+              v-for="spot in spotList"
+              :key="spot.id"
+              :label="spot.name"
+              :value="spot.id"
+            />
+          </el-select>
         </div>
 
         <!-- 猜你喜欢 -->
-        <div class="section" v-if="user">
+        <div class="section" v-if="user && viewMode === 'list'">
           <div class="section-header">
             <div class="section-left">
               <span class="section-icon">✨</span>
@@ -139,6 +165,7 @@
               <div class="recommend-info">
                 <h3>{{ item.title }}</h3>
                 <p>{{ item.description }}</p>
+                <div v-if="getSpotName(item)" class="product-spot">📍 {{ getSpotName(item) }}</div>
                 <div class="recommend-bottom">
                   <span class="price">¥{{ item.price }}</span>
                   <span class="like-count">❤️ {{ item.favoriteCount || 0 }}</span>
@@ -154,7 +181,7 @@
         </div>
 
         <!-- 热门商品 -->
-        <div class="section">
+        <div v-if="viewMode === 'list'" class="section">
           <div class="section-header">
             <div class="section-left">
               <span class="section-icon">🔥</span>
@@ -169,6 +196,7 @@
               <div class="product-info">
                 <h3>{{ item.title }}</h3>
                 <p>{{ item.description }}</p>
+                <div v-if="getSpotName(item)" class="product-spot">📍 {{ getSpotName(item) }}</div>
                 <div class="product-bottom">
                   <span class="price">¥{{ item.price }}</span>
                   <span class="views">👁 {{ item.views || 0 }}</span>
@@ -182,6 +210,7 @@
             </div>
           </div>
         </div>
+        <MapView v-else :products="productList" />
       </div>
     </div>
   </div>
@@ -198,21 +227,25 @@ import {
 } from '@element-plus/icons-vue'
 import { getProductList, getRecommendList, getProductsByCategory } from '../api/product'
 import request from '../api/request'
+import MapView from '../components/MapView.vue'
 
 const router = useRouter()
 const route = useRoute()
 const user = ref(null)
 const unreadCount = ref(0)
 const activeCategory = ref('all')
+const activeSpotId = ref('')
+const viewMode = ref('list')
 const productList = ref([])
 const recommendList = ref([])
+const spotList = ref([])
 const productLoading = ref(false)
 const recommendLoading = ref(false)
 const activeMenu = ref('home')
 
 // 防抖相关
 let loadTimer = null
-const isLoading = ref(false)
+let productLoadId = 0
 
 const loadUnreadCount = async () => {
   if (user.value) {
@@ -228,26 +261,45 @@ const loadUnreadCount = async () => {
 }
 
 const loadProducts = async () => {
-  if (isLoading.value) return
-  isLoading.value = true
+  const currentLoadId = ++productLoadId
   productLoading.value = true
 
   try {
     let res
     if (activeCategory.value === 'all') {
-      res = await getProductList()
+      res = await getProductList(activeSpotId.value)
     } else {
-      res = await getProductsByCategory(activeCategory.value)
+      res = await getProductsByCategory(activeCategory.value, activeSpotId.value)
     }
-    productList.value = Array.isArray(res) ? res : (res.data || [])
-    console.log('当前分类:', activeCategory.value, '商品数量:', productList.value.length)
+    if (currentLoadId === productLoadId) {
+      productList.value = Array.isArray(res) ? res : (res.data || [])
+      console.log('当前分类:', activeCategory.value, '商品数量:', productList.value.length)
+    }
   } catch (error) {
     console.error('加载商品失败', error)
-    productList.value = []
+    if (currentLoadId === productLoadId) {
+      productList.value = []
+    }
   } finally {
-    productLoading.value = false
-    isLoading.value = false
+    if (currentLoadId === productLoadId) {
+      productLoading.value = false
+    }
   }
+}
+
+const loadSpots = async () => {
+  try {
+    const result = await request.get('/campus-spot/list')
+    spotList.value = Array.isArray(result) ? result : []
+  } catch (error) {
+    console.error('加载交易点失败', error)
+    spotList.value = []
+  }
+}
+
+const getSpotName = (product) => {
+  if (product.spotName) return product.spotName
+  return spotList.value.find(spot => spot.id === product.spotId)?.name || ''
 }
 
 const loadRecommend = async () => {
@@ -335,6 +387,7 @@ const handleRefreshRecommend = () => {
 }
 
 onMounted(() => {
+  loadSpots()
   const savedUser = localStorage.getItem('user')
   if (savedUser) {
     user.value = JSON.parse(savedUser)
@@ -508,8 +561,25 @@ onUnmounted(() => {
 .category-filter {
   background: white;
   border-radius: 12px;
-  padding: 0 16px;
+  padding: 0 16px 12px;
   margin-bottom: 24px;
+}
+.view-mode-switch {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+.spot-filter {
+  width: min(360px, 100%);
+  margin: 0 0 4px 12px;
+}
+.product-spot {
+  color: #7c3aed;
+  font-size: 12px;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .section {

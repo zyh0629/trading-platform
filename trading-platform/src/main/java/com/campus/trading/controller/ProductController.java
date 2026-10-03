@@ -1,9 +1,11 @@
 package com.campus.trading.controller;
 
 import com.campus.trading.entity.Product;
+import com.campus.trading.security.UserPrincipal;
 import com.campus.trading.service.impl.ProductService;
 import com.campus.trading.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,8 +19,9 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/add")
-    public String addProduct(@RequestBody Product product) {
-        return productService.addProduct(product) ? "发布成功" : "发布失败";
+    public String addProduct(@RequestBody Product product,
+                             @AuthenticationPrincipal UserPrincipal principal) {
+        return productService.addProduct(product, principal.getUserId()) ? "发布成功" : "发布失败";
     }
 
     @GetMapping("/{id}")
@@ -27,8 +30,8 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public List<Product> getAllProducts(@RequestParam(required = false) Long spotId) {
+        return productService.getAllProducts(spotId);
     }
 
     // 获取所有商品（包括下架的，用于统计）
@@ -43,8 +46,9 @@ public class ProductController {
     }
 
     @GetMapping("/category/{categoryId}")
-    public List<Product> getByCategory(@PathVariable Integer categoryId) {
-        return productService.getProductsByCategory(categoryId);
+    public List<Product> getByCategory(@PathVariable Integer categoryId,
+                                       @RequestParam(required = false) Long spotId) {
+        return productService.getProductsByCategory(categoryId, spotId);
     }
 
     @GetMapping("/my/{userId}")
@@ -59,7 +63,8 @@ public class ProductController {
 
     // 编辑商品
     @PutMapping("/update")
-    public Result<String> updateProduct(@RequestBody Product product) {
+    public Result<String> updateProduct(@RequestBody Product product,
+                                        @AuthenticationPrincipal UserPrincipal principal) {
         // 检查商品是否存在
         Product existProduct = productService.getProductById(product.getId());
         if (existProduct == null) {
@@ -67,7 +72,7 @@ public class ProductController {
         }
         // 更新商品
         product.setUpdateTime(LocalDateTime.now());
-        boolean success = productService.updateProduct(product);
+        boolean success = productService.updateProduct(product, principal.getUserId());
         if (success) {
             return Result.success("更新成功", null);
         }

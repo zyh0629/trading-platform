@@ -29,10 +29,13 @@ test_unzip/
 *.zip
 test.http
 GenPwd.java
+.env.local
 
 /package.json
 /package-lock.json
 
-# ╠╬╣ь╡Бйтсц
+# О©╫О©╫О©╫ь╡О©╫О©╫О©╫О©╫О©╫
 body.json
 ds.json
+
+spot.json

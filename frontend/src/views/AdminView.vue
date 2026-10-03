@@ -19,6 +19,10 @@
           <el-icon><Goods /></el-icon>
           <span>商品管理</span>
         </el-menu-item>
+        <el-menu-item index="spots">
+          <el-icon><Location /></el-icon>
+          <span>交易点管理</span>
+        </el-menu-item>
         <el-menu-item index="orders">
           <el-icon><ShoppingCart /></el-icon>
           <span>交易管理</span>
@@ -160,6 +164,44 @@
         </el-table>
       </div>
 
+      <div v-if="activeMenu === 'spots'" class="admin-panel">
+        <el-form :model="spotForm" inline @submit.prevent="addSpot">
+          <el-form-item label="名称">
+            <el-input v-model="spotForm.name" maxlength="50" placeholder="交易点名称" />
+          </el-form-item>
+          <el-form-item label="描述">
+            <el-input v-model="spotForm.description" maxlength="200" placeholder="位置说明" />
+          </el-form-item>
+          <el-form-item label="纬度">
+            <el-input v-model="spotForm.latitude" placeholder="可选" />
+          </el-form-item>
+          <el-form-item label="经度">
+            <el-input v-model="spotForm.longitude" placeholder="可选" />
+          </el-form-item>
+          <el-form-item label="排序">
+            <el-input-number v-model="spotForm.sortOrder" :min="0" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="addSpot">新增交易点</el-button>
+          </el-form-item>
+        </el-form>
+        <el-table :data="spotList" style="width: 100%;" stripe>
+          <el-table-column prop="sortOrder" label="排序" width="80" />
+          <el-table-column prop="name" label="交易点名称" />
+          <el-table-column prop="description" label="描述" />
+          <el-table-column label="经纬度">
+            <template #default="{ row }">
+              {{ row.latitude ?? '-' }}, {{ row.longitude ?? '-' }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100">
+            <template #default="{ row }">
+              <el-button size="small" type="danger" @click="deleteSpot(row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
       <!-- 交易管理 -->
       <div v-if="activeMenu === 'orders'" class="admin-panel">
         <el-table :data="tradeList" style="width: 100%;" stripe>
@@ -199,7 +241,7 @@ import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
-import { DataAnalysis, User, Goods, ShoppingCart } from '@element-plus/icons-vue'
+import { DataAnalysis, User, Goods, ShoppingCart, Location } from '@element-plus/icons-vue'
 import request from '../api/request'
 
 const router = useRouter()
@@ -216,6 +258,14 @@ const recommendRate = ref(0)
 const userList = ref([])
 const allProducts = ref([])
 const tradeList = ref([])
+const spotList = ref([])
+const spotForm = ref({
+  name: '',
+  description: '',
+  latitude: '',
+  longitude: '',
+  sortOrder: 0
+})
 const sellerMap = ref({})
 const userMap = ref({})
 
@@ -230,7 +280,7 @@ const statsTradeChartRef = ref(null)
 const statsRecommendChartRef = ref(null)
 
 const handleMenuSelect = (index) => {
-  const titles = { stats: '数据统计', users: '用户管理', products: '商品管理', orders: '交易管理' }
+  const titles = { stats: '数据统计', users: '用户管理', products: '商品管理', spots: '交易点管理', orders: '交易管理' }
   activeMenu.value = index
   pageTitle.value = titles[index] || '数据统计'
 
@@ -241,8 +291,48 @@ const handleMenuSelect = (index) => {
     loadUsers()
   } else if (index === 'products') {
     loadAllProducts()
+  } else if (index === 'spots') {
+    loadSpots()
   } else if (index === 'orders') {
     loadTrades()
+  }
+}
+
+const loadSpots = async () => {
+  try {
+    const result = await request.get('/campus-spot/list')
+    spotList.value = Array.isArray(result) ? result.filter(spot => spot.isPublic !== 0) : []
+  } catch (error) {
+    ElMessage.error(error.message || '加载交易点失败')
+  }
+}
+
+const addSpot = async () => {
+  if (!spotForm.value.name.trim()) {
+    ElMessage.warning('请输入交易点名称')
+    return
+  }
+  try {
+    await request.post('/campus-spot/add', {
+      ...spotForm.value,
+      latitude: spotForm.value.latitude || null,
+      longitude: spotForm.value.longitude || null
+    })
+    ElMessage.success('交易点已添加')
+    spotForm.value = { name: '', description: '', latitude: '', longitude: '', sortOrder: 0 }
+    loadSpots()
+  } catch (error) {
+    ElMessage.error(error.message || '新增交易点失败')
+  }
+}
+
+const deleteSpot = async (spot) => {
+  try {
+    await request.delete(`/campus-spot/${spot.id}`)
+    ElMessage.success('交易点已删除')
+    loadSpots()
+  } catch (error) {
+    ElMessage.error(error.message || '删除交易点失败')
   }
 }
 
